@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import sqlalchemy
+from sqlalchemy import orm
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from .db_session import SqlAlchemyBase
@@ -13,6 +14,7 @@ class User(SqlAlchemyBase):
     email = sqlalchemy.Column(sqlalchemy.String, unique=True, nullable=True)
     hpasw = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, nullable=True, default=datetime.now())
+    news = orm.relationship("Ad", back_populates='user')
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

@@ -1,5 +1,5 @@
-from flask import Flask, render_template, redirect
-
+from flask import Flask, render_template, redirect, session, make_response
+from flask_login import LoginManager
 from data import db_session
 from data.users import User
 from loginform import LoginForm
@@ -7,6 +7,9 @@ from register import RegisterForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "CRZDYAMSD!##!@"
+login_manager = LoginManager()
+login_manager.init_app(app)
+db_session.global_init("db/database.db")
 
 
 @app.route("/")
@@ -14,11 +17,17 @@ def main():
     return render_template("index.html")
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        return redirect('/success')
+        return redirect('/')
     return render_template('loginform.html', title='Авторизация', form=form)
 
 
@@ -36,15 +45,22 @@ def reqister():
                                    form=form,
                                    message="Такой пользователь уже есть")
         user = User(
-            name=form.name.data,
+            nickname=form.name.data,
             email=form.email.data,
-            about=form.about.data
         )
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route("/session_test")
+def session_test():
+    visits_count = session.get('visits_count', 0)
+    session['visits_count'] = visits_count + 1
+    return make_response(
+        f"Вы пришли на эту страницу {visits_count + 1} раз")
 
 
 if __name__ == "__main__":
