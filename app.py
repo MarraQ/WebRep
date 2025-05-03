@@ -85,6 +85,20 @@ def add_ads():
                            title="Добавление объявления", form=form)
 
 
+@app.route('/ad/<int:ad_id>')
+def show_ads(ad_id):
+    db_sess = db_session.create_session()
+    ad = db_sess.query(Ad).filter(Ad.id == ad_id).first()
+    if ad:
+        params = {}
+        params["title"] = ad.title
+        params["content"] = ad.description
+        params["price"] = ad.price
+        return render_template("ad.html", **params)
+    else:
+        return render_template("notfound.html")
+
+
 @app.route("/session_test")
 def session_test():
     visits_count = session.get('visits_count', 0)
