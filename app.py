@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, session, make_response
-from flask_login import LoginManager, current_user, login_required, login_user
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from data import db_session
 from data.users import User
 from data.ads import Ad
@@ -42,6 +42,11 @@ def login():
                                form=form)
     return render_template('loginform.html', title='Авторизация', form=form)
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
@@ -75,7 +80,8 @@ def add_ads():
         db_sess = db_session.create_session()
         ad = Ad()
         ad.title = form.title.data
-        ad.content = form.content.data
+        print(form.content.data)
+        ad.description = form.content.data
         ad.price = form.price.data
         current_user.ads.append(ad)
         db_sess.merge(current_user)
