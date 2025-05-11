@@ -177,7 +177,7 @@ def edit_ad(id):
                            title='Редактирование объявления',
                            form=form)
 
-
+@app.route("/user/<int:user_id>")
 def profile(user_id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == user_id).first()
