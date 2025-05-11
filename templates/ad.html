@@ -5,7 +5,7 @@
     <div class="card-header">
         <h2>{{ title }}</h2>
         {% if current_user.id == owner_id %}
-                <a href="/user/edit" class="btn btn-primary">Изменить</a>
+                <a href="/ad/edit/{{ id }}" class="btn btn-primary">Изменить</a>
                 <a href="/#" class="btn btn-danger">Удалить</a>
         {% endif %}
     </div>

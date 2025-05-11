@@ -1,6 +1,6 @@
 from os import abort
 
-from flask import Flask, render_template, redirect, session, make_response
+from flask import Flask, render_template, redirect, session, make_response, request
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 
 from adform import AdForm
@@ -145,7 +145,39 @@ def bought_ad(ad_id):
     return redirect("/")
 
 
-@app.route("/user/<int:user_id>")
+@app.route('/ad/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_ad(id):
+    form = AdForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        ad = db_sess.query(Ad).filter(Ad.id == id,
+                                      Ad.user == current_user
+                                      ).first()
+        if ad:
+            form.title.data = ad.title
+            form.content.data = ad.description
+            form.price.data = ad.price
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        ad = db_sess.query(Ad).filter(Ad.id == id,
+                                      Ad.user == current_user
+                                      ).first()
+        if ad:
+            ad.title = form.title.data
+            ad.description = form.content.data
+            ad.price = form.price.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('adform.html',
+                           title='Редактирование объявления',
+                           form=form)
+
+
 def profile(user_id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == user_id).first()
