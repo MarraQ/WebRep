@@ -2,12 +2,13 @@ from os import abort
 
 from flask import Flask, render_template, redirect, session, make_response
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+
+from adform import AdForm
 from data import db_session
-from data.users import User
 from data.ads import Ad
+from data.users import User
 from loginform import LoginForm
 from register import RegisterForm
-from adform import AdForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "CRZDYAMSD!##!@"
@@ -46,11 +47,13 @@ def login():
                                form=form)
     return render_template('loginform.html', title='Авторизация', form=form)
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect("/")
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
@@ -106,6 +109,7 @@ def show_ads(ad_id):
         params["content"] = ad.description
         params["price"] = ad.price
         params["date"] = str(ad.date).split(':')[0]
+        params["owner_id"] = ad.owner_id
         return render_template("ad.html", **params)
     else:
         return render_template("notfound.html")
@@ -117,6 +121,7 @@ def session_test():
     session['visits_count'] = visits_count + 1
     return make_response(
         f"Вы пришли на эту страницу {visits_count + 1} раз")
+
 
 @app.route("/ad/buy/<int:ad_id>")
 def buy_ad(ad_id):
@@ -138,6 +143,19 @@ def bought_ad(ad_id):
     else:
         abort(404)
     return redirect("/")
+
+
+@app.route("/user/<int:user_id>")
+def profile(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == user_id).first()
+    params = {}
+    params["id"] = user.id
+    params["nickname"] = user.nickname
+    params["email"] = user.email
+    params["date"] = user.created_date
+    return render_template("user.html", **params)
+
 
 if __name__ == "__main__":
     app.run()

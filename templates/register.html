@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Регистрация</h1>
+{% if current_user.is_authenticated %}
+    <h1>Изменение</h1>
+{% else %}
+    <h1>Регистрация</h1>
+{% endif %}
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
