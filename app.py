@@ -1,3 +1,5 @@
+from os import abort
+
 from flask import Flask, render_template, redirect, session, make_response
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from data import db_session
@@ -16,7 +18,9 @@ db_session.global_init("db/database.db")
 
 @app.route("/")
 def main():
-    return render_template("index.html")
+    db_sess = db_session.create_session()
+    ads = db_sess.query(Ad).all()
+    return render_template("mainpage.html", ads=ads)
 
 
 @login_manager.user_loader
@@ -97,9 +101,11 @@ def show_ads(ad_id):
     ad = db_sess.query(Ad).filter(Ad.id == ad_id).first()
     if ad:
         params = {}
+        params["id"] = ad.id
         params["title"] = ad.title
         params["content"] = ad.description
         params["price"] = ad.price
+        params["date"] = str(ad.date).split(':')[0]
         return render_template("ad.html", **params)
     else:
         return render_template("notfound.html")
@@ -110,8 +116,28 @@ def session_test():
     visits_count = session.get('visits_count', 0)
     session['visits_count'] = visits_count + 1
     return make_response(
-        f"Вы пришли на эту страницу {visits_count + 1} раз {current_user.nickname}")
+        f"Вы пришли на эту страницу {visits_count + 1} раз")
 
+@app.route("/ad/buy/<int:ad_id>")
+def buy_ad(ad_id):
+    db_sess = db_session.create_session()
+    ad = db_sess.query(Ad).filter(Ad.id == ad_id).first()
+    params = {}
+    params["id"] = ad.id
+    params["title"] = ad.title
+    return render_template("buy.html", **params)
+
+
+@app.route("/ad/bought/<int:ad_id>")
+def bought_ad(ad_id):
+    db_sess = db_session.create_session()
+    ad = db_sess.query(Ad).filter(Ad.id == ad_id).first()
+    if ad:
+        db_sess.delete(ad)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect("/")
 
 if __name__ == "__main__":
     app.run()

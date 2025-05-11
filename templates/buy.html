@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Вы действительно хотите купить {{ title }}?</h2>
+<a href="/ad/bought/{{ id }}" class="btn btn-success btn-lg">Да</a>
+<a href="/ad/{{ id }}" class="btn btn-secondary btn-lg ms-3">Нет</a>
+{% endblock %}

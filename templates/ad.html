@@ -1,11 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ title }}</h1>
-<div class="main-content">
-    <p>{{ content }}</p>
-</div>
-<div class="footer">
-    <p>Цена: {{ price }}</p>
+<div class="card">
+    <div class="card-header">
+        <h2>{{ title }}</h2>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Цена: {{ price }} ₽</h5>
+        <p class="card-text">{{ content }}</p>
+        <img src="C:\Users\User\PycharmProjects\WebRep1\static\ph1.jpg" class="img-fluid mt-3" alt="Изображение объявления">
+        <div class="mt-4">
+            <a href="/ad/buy/{{ id }}" class="btn btn-success btn-lg">Купить</a>
+            <a href="/" class="btn btn-secondary btn-lg ms-3">Вернуться на главную</a>
+        </div>
+    </div>
+    <div class="card-footer text-muted">
+        Размещено: {{ date }}
+    </div>
 </div>
 {% endblock %}

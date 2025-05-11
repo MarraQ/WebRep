@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Объявления</h1>
+    {% if ads %}
+        <div class="row">
+            {% for ad in ads %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    {% if ad.image %}
+                    <img src="{{ ad.image.url }}" class="card-img-top" alt="{{ ad.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ ad.title }}</h5>
+                        <p class="card-text">{{ ad.description }}</p>
+                        <span class="float-end text-primary fw-bold">{{ ad.price }} ₽</span>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="/ad/{{ ad.id }}" class="btn btn-primary">Перейти к объявлению</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+    <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                Объявлений пока нет.
+            </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

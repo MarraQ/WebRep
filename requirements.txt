@@ -2,3 +2,4 @@ sqlalchemy
 flask
 flask-wtf
 flask-login
+flask-restful
