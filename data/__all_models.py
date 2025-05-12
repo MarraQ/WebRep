@@ -1,2 +1,2 @@
-from . import users
-from . import ads
+from data import users
+from data import ads

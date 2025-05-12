@@ -8,9 +8,6 @@
             {% for ad in ads %}
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card">
-                    {% if ad.image %}
-                    <img src="{{ ad.image.url }}" class="card-img-top" alt="{{ ad.title }}">
-                    {% endif %}
                     <div class="card-body">
                         <h5 class="card-title">{{ ad.title }}</h5>
                         <p class="card-text">{{ ad.description }}</p>

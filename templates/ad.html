@@ -12,7 +12,9 @@
     <div class="card-body">
         <h5 class="card-title">Цена: {{ price }} ₽</h5>
         <p class="card-text">{{ content }}</p>
-        <img src="C:\Users\User\PycharmProjects\WebRep1\static\ph1.jpg" class="img-fluid mt-3" alt="Изображение объявления">
+        {% if image %}
+            <img src="{{ url_for('static', filename='images/' + image) }}" alt="Изображение" style="max-width:300px;">
+        {% endif %}
         <div class="mt-4">
             {% if current_user.id != owner_id %}
                 <a href="/ad/buy/{{ id }}" class="btn btn-success btn-lg">Купить</a>

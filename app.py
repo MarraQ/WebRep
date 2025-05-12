@@ -1,3 +1,6 @@
+import os
+import uuid
+
 from flask import Flask, render_template, redirect, session, make_response, request, abort, jsonify
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_restful import abort, Api
@@ -13,6 +16,7 @@ from register import RegisterForm
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = "CRZDYAMSD!##!@"
+app.config["UPLOAD_FOLDER"] = "static/images"
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/database.db")
@@ -98,6 +102,13 @@ def add_ads():
         ad.title = form.title.data
         ad.description = form.content.data
         ad.price = form.price.data
+        if form.image.data:
+            ext = os.path.splitext(form.image.data.filename)[1]
+            filename = f"{uuid.uuid4().hex}{ext}"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            form.image.data.save(filepath)
+            ad.image = filename
+
         current_user.ads.append(ad)
         db_sess.merge(current_user)
         db_sess.commit()
@@ -117,6 +128,7 @@ def show_ads(ad_id):
         params["content"] = ad.description
         params["price"] = ad.price
         params["date"] = str(ad.date).split(':')[0]
+        params["image"] = ad.image
         params["owner_id"] = ad.owner_id
         return render_template("ad.html", **params)
     else:
@@ -168,6 +180,7 @@ def edit_ad(id):
             form.title.data = ad.title
             form.content.data = ad.description
             form.price.data = ad.price
+            form.image.data = ''
         else:
             abort(404)
     if form.validate_on_submit():
@@ -179,6 +192,12 @@ def edit_ad(id):
             ad.title = form.title.data
             ad.description = form.content.data
             ad.price = form.price.data
+            if form.image.data:
+                ext = os.path.splitext(form.image.data.filename)[1]
+                filename = f"{uuid.uuid4().hex}{ext}"
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                form.image.data.save(filepath)
+                ad.image = filename
             db_sess.commit()
             return redirect('/')
         else:

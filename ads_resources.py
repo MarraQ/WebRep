@@ -1,4 +1,3 @@
-
 from flask import jsonify
 from flask_restful import Resource, reqparse, abort
 
@@ -19,13 +18,12 @@ def abort_if_ads_not_found(ad_id):
         abort(404, message=f"Ad {ad_id} not found")
 
 
-
 class AdsResource(Resource):
     def get(self, ad_id):
         abort_if_ads_not_found(ad_id)
         db_sess = db_session.create_session()
         ad = db_sess.query(Ad).get(ad_id)
-        return jsonify({'ad': {"title" : ad.title, "description" : ad.description, "price" : ad.price} })
+        return jsonify({'ad': {"title": ad.title, "description": ad.description, "price": ad.price}})
 
     def delete(self, ad_id):
         abort_if_ads_not_found(ad_id)
@@ -43,7 +41,7 @@ class AdsListResource(Resource):
         return jsonify({"ads": [
             {
                 "title": item.title,
-                "description": item.description,  # Тут почему на to_dict() жалуется, поэтому я тупа вручную его собрал)
+                "description": item.description,
                 "user.name": item.user.nickname
             } for item in ads]})
 
