@@ -1,17 +1,17 @@
 import os
 import uuid
 
-from flask import Flask, render_template, redirect, session, make_response, request, abort, jsonify
+from flask import Flask, render_template, redirect, request, abort, jsonify
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_restful import abort, Api
 
-from adform import AdForm
-from ads_resources import AdsListResource, AdsResource
+from forms.adform import AdForm
+from api.ads_resources import AdsListResource, AdsResource
 from data import db_session
 from data.ads import Ad
 from data.users import User
-from loginform import LoginForm
-from register import RegisterForm
+from forms.loginform import LoginForm
+from forms.register import RegisterForm
 
 app = Flask(__name__)
 api = Api(app)
@@ -135,14 +135,6 @@ def show_ads(ad_id):
         return render_template("notfound.html")
 
 
-@app.route("/session_test")
-def session_test():
-    visits_count = session.get('visits_count', 0)
-    session['visits_count'] = visits_count + 1
-    return make_response(
-        f"Вы пришли на эту страницу {visits_count + 1} раз")
-
-
 @app.route("/ad/buy/<int:ad_id>")
 @login_required
 def buy_ad(ad_id):
@@ -167,13 +159,13 @@ def bought_ad(ad_id):
     return redirect("/")
 
 
-@app.route('/ad/edit/<int:id>', methods=['GET', 'POST'])
+@app.route('/ad/edit/<int:ad_id>', methods=['GET', 'POST'])
 @login_required
-def edit_ad(id):
+def edit_ad(ad_id):
     form = AdForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        ad = db_sess.query(Ad).filter(Ad.id == id,
+        ad = db_sess.query(Ad).filter(Ad.id == ad_id,
                                       Ad.user == current_user
                                       ).first()
         if ad:
@@ -185,7 +177,7 @@ def edit_ad(id):
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        ad = db_sess.query(Ad).filter(Ad.id == id,
+        ad = db_sess.query(Ad).filter(Ad.id == ad_id,
                                       Ad.user == current_user
                                       ).first()
         if ad:
