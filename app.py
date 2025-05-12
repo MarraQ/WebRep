@@ -2,7 +2,9 @@ from os import abort
 
 from flask import Flask, render_template, redirect, session, make_response, request
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from flask_restful import abort, Api
 
+from ads_resources import AdsListResource, AdsResource
 from adform import AdForm
 from data import db_session
 from data.ads import Ad
@@ -10,11 +12,16 @@ from data.users import User
 from loginform import LoginForm
 from register import RegisterForm
 
+
+
 app = Flask(__name__)
+api = Api(app)
 app.config['SECRET_KEY'] = "CRZDYAMSD!##!@"
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/database.db")
+api.add_resource(AdsListResource, '/api/ads')
+api.add_resource(AdsResource, '/api/ads/<int:ads_id>')
 
 
 @app.route("/")
@@ -87,7 +94,6 @@ def add_ads():
         db_sess = db_session.create_session()
         ad = Ad()
         ad.title = form.title.data
-        print(form.content.data)
         ad.description = form.content.data
         ad.price = form.price.data
         current_user.ads.append(ad)
@@ -124,6 +130,7 @@ def session_test():
 
 
 @app.route("/ad/buy/<int:ad_id>")
+@login_required
 def buy_ad(ad_id):
     db_sess = db_session.create_session()
     ad = db_sess.query(Ad).filter(Ad.id == ad_id).first()
@@ -134,6 +141,7 @@ def buy_ad(ad_id):
 
 
 @app.route("/ad/bought/<int:ad_id>")
+@login_required
 def bought_ad(ad_id):
     db_sess = db_session.create_session()
     ad = db_sess.query(Ad).filter(Ad.id == ad_id).first()
@@ -176,6 +184,22 @@ def edit_ad(id):
     return render_template('adform.html',
                            title='Редактирование объявления',
                            form=form)
+
+
+@app.route('/ad/delete/<int:ad_id>', methods=['GET', 'POST'])
+@login_required
+def delete_ad(ad_id):
+    db_sess = db_session.create_session()
+    ad = db_sess.query(Ad).filter(Ad.id == ad_id,
+                                    Ad.user == current_user
+                                    ).first()
+    if ad:
+        db_sess.delete(ad)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
 
 @app.route("/user/<int:user_id>")
 def profile(user_id):

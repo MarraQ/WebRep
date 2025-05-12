@@ -6,7 +6,7 @@
         <h2>{{ title }}</h2>
         {% if current_user.id == owner_id %}
                 <a href="/ad/edit/{{ id }}" class="btn btn-primary">Изменить</a>
-                <a href="/#" class="btn btn-danger">Удалить</a>
+                <a href="/ad/delete/{{ id }}" class="btn btn-danger">Удалить</a>
         {% endif %}
     </div>
     <div class="card-body">
@@ -14,7 +14,9 @@
         <p class="card-text">{{ content }}</p>
         <img src="C:\Users\User\PycharmProjects\WebRep1\static\ph1.jpg" class="img-fluid mt-3" alt="Изображение объявления">
         <div class="mt-4">
-            <a href="/ad/buy/{{ id }}" class="btn btn-success btn-lg">Купить</a>
+            {% if current_user.id != owner_id %}
+                <a href="/ad/buy/{{ id }}" class="btn btn-success btn-lg">Купить</a>
+            {% endif %}
             <a href="/" class="btn btn-secondary btn-lg ms-3">Вернуться на главную</a>
 
         </div>
