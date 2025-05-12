@@ -1,5 +1,7 @@
-sqlalchemy
-flask
-flask-wtf
-flask-login
-flask-restful
+Flask
+Flask-WTF
+Flask-Login
+Flask-RESTful
+SQLAlchemy
+requests
+Werkzeug

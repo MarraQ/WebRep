@@ -5,11 +5,11 @@ from flask import Flask, render_template, redirect, request, abort, jsonify
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_restful import abort, Api
 
-from forms.adform import AdForm
 from api.ads_resources import AdsListResource, AdsResource
 from data import db_session
 from data.ads import Ad
 from data.users import User
+from forms.adform import AdForm
 from forms.loginform import LoginForm
 from forms.register import RegisterForm
 
@@ -62,7 +62,6 @@ def login():
 
 
 @app.route('/logout')
-@login_required
 def logout():
     logout_user()
     return redirect("/")
