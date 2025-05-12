@@ -1,7 +1,6 @@
-from os import abort
 
 from flask import jsonify
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, reqparse, abort
 
 from data import db_session
 from data.ads import Ad
@@ -17,7 +16,8 @@ def abort_if_ads_not_found(ad_id):
     session = db_session.create_session()
     ads = session.query(Ad).get(ad_id)
     if not ads:
-        abort(404, message=f"Ads {ad_id} not found")
+        abort(404, message=f"Ad {ad_id} not found")
+
 
 
 class AdsResource(Resource):
@@ -25,8 +25,7 @@ class AdsResource(Resource):
         abort_if_ads_not_found(ad_id)
         db_sess = db_session.create_session()
         ad = db_sess.query(Ad).get(ad_id)
-        return jsonify({'ad': ad.to_dict(
-            only=('title', 'description', 'owner_id', 'price'))})
+        return jsonify({'ad': {"title" : ad.title, "description" : ad.description, "price" : ad.price} })
 
     def delete(self, ad_id):
         abort_if_ads_not_found(ad_id)
@@ -41,7 +40,12 @@ class AdsListResource(Resource):
     def get(self):
         db_sess = db_session.create_session()
         ads = db_sess.query(Ad).all()
-        return jsonify({"ads": item.to_dict(only=("title", "description", "user.name")) for item in ads})
+        return jsonify({"ads": [
+            {
+                "title": item.title,
+                "description": item.description,  # Тут почему на to_dict() жалуется, поэтому я тупа вручную его собрал)
+                "user.name": item.user.nickname
+            } for item in ads]})
 
     def post(self):
         args = parser.parse_args()

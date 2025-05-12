@@ -1,18 +1,14 @@
-from os import abort
-
-from flask import Flask, render_template, redirect, session, make_response, request
+from flask import Flask, render_template, redirect, session, make_response, request, abort, jsonify
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_restful import abort, Api
 
-from ads_resources import AdsListResource, AdsResource
 from adform import AdForm
+from ads_resources import AdsListResource, AdsResource
 from data import db_session
 from data.ads import Ad
 from data.users import User
 from loginform import LoginForm
 from register import RegisterForm
-
-
 
 app = Flask(__name__)
 api = Api(app)
@@ -20,8 +16,9 @@ app.config['SECRET_KEY'] = "CRZDYAMSD!##!@"
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/database.db")
+
 api.add_resource(AdsListResource, '/api/ads')
-api.add_resource(AdsResource, '/api/ads/<int:ads_id>')
+api.add_resource(AdsResource, '/api/ads/<int:ad_id>')
 
 
 @app.route("/")
@@ -35,6 +32,11 @@ def main():
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'error': 'Not found'}), 404
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -191,8 +193,8 @@ def edit_ad(id):
 def delete_ad(ad_id):
     db_sess = db_session.create_session()
     ad = db_sess.query(Ad).filter(Ad.id == ad_id,
-                                    Ad.user == current_user
-                                    ).first()
+                                  Ad.user == current_user
+                                  ).first()
     if ad:
         db_sess.delete(ad)
         db_sess.commit()
